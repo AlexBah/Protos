@@ -2,16 +2,53 @@ syntax = "proto3";
 
 package auth;
 
+import "google/api/annotations.proto";
+
 option go_package = "tuzov.sso.v1;ssov1";
 
 service Auth {
-	rpc Register (RegisterRequest) returns (RegisterResponse);
-	rpc Login (LoginRequest) returns (LoginResponse);
-	rpc IsAdmin (IsAdminRequest) returns (IsAdminResponse);
+	rpc Register (RegisterRequest) returns (RegisterResponse) {
+		option (google.api.http) = {
+		  post: "/v1/auth/register"
+		  body: "*"
+		};
+	  }
+	
+	  rpc Login (LoginRequest) returns (LoginResponse) {
+		option (google.api.http) = {
+		  post: "/v1/auth/login"
+		  body: "*"
+		};
+	  }
+	
+	  rpc IsAdmin (IsAdminRequest) returns (IsAdminResponse) {
+		option (google.api.http) = {
+		  get: "/v1/auth/admin/{user_id}"
+		};
+	  }
+
+	  rpc GetUser (GetUserRequest) returns (GetUserResponse) {
+		option (google.api.http) = {
+		  get: "/v1/users/{phone}"
+		};
+	  }
+
+	  rpc UpdateUser (UpdateUserRequest) returns (UpdateUserResponse) {
+		option (google.api.http) = {
+		  put: "/v1/users/{user_id}"
+		  body: "*"
+		};
+	  }
+	
+	  rpc DeleteUser (DeleteUserRequest) returns (DeleteUserResponse) {
+		option (google.api.http) = {
+		  delete: "/v1/users/{phone}"
+		};
+	  }
 }
 
 message RegisterRequest {
-	string email = 1;
+	string phone = 1;
 	string password = 2;
 }
 
@@ -20,13 +57,16 @@ message RegisterResponse {
 }
 
 message LoginRequest {
-	string email = 1;
+	string phone = 1;
 	string password = 2;
 	int32 app_id = 3;
 }
 
 message LoginResponse {
-	string token = 1;
+	string name = 1;
+	string email = 2;
+	string token = 3;
+	int64 user_id = 4;
 }
 
 message IsAdminRequest {
@@ -35,4 +75,34 @@ message IsAdminRequest {
 
 message IsAdminResponse {
 	bool is_admin = 1;
+}
+
+message GetUserRequest {
+	string phone = 1;
+}
+
+message GetUserResponse {
+	string name = 1;
+}
+
+message UpdateUserRequest {
+	int64 user_id = 1;
+	string name = 2;
+	string email = 3;
+	string phone = 4;
+	string password = 5;
+	string token = 6;
+}
+
+message UpdateUserResponse {
+	bool success = 1;
+}
+
+message DeleteUserRequest {
+	string phone = 4;
+	string token = 6;
+}
+
+message DeleteUserResponse {
+	bool success = 1;
 }
